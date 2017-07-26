@@ -34,12 +34,23 @@ const createRequestHandler = indexedRoutes => (req, res) => {
 
 const createRouter = compose(createRequestHandler, indexRoutes)
 
-const addMiddlewares = (...middlewares) => router => (req, res) => middlewares.reduce(
-	(next, middleware) => () => middleware(req, res, next),
-	() => router(req, res)
-)()
+const addMiddlewares = (...middlewares) => router => (req, res) => {
+	// each middleware gets a reference to the "next" middleware in the chain
+	// with the final reference being the function that executes the request via the router.
+	// middlewares are executed from last to first, similar to lodash.flowRight
+	return middlewares.reduce(
+		function bindArgsToMiddleware(next, middleware) {
+			return () => middleware(req, res, next)
+		},
+		() => router(req, res)
+	)()
+}
 
-function createServer({ port = PORT, middlewares = [], routes = [] }) {
+function createServer({
+	port = PORT,
+	middlewares = [],
+	routes = [],
+}) {
 	const server = compose(
 		router => http.createServer(router),
 		addMiddlewares(...middlewares),
