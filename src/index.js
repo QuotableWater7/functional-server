@@ -33,7 +33,7 @@ const routes = [
 	createPostRoute({
 		url: '/blah',
 		handler: postBlah,
-	})
+	}),
 ]
 
 const indexRoutes = routes => routes.reduce(
@@ -47,7 +47,7 @@ const indexRoutes = routes => routes.reduce(
 	{}
 )
 
-const createRouter = indexedRoutes => (req, res) => {
+const createRequestHandler = indexedRoutes => (req, res) => {
 	const url = req.url
 	const method = req.method
 
@@ -61,6 +61,8 @@ const createRouter = indexedRoutes => (req, res) => {
 
 	route.handler(req, res)
 }
+
+const createRouter = compose(createRequestHandler, indexRoutes)
 
 const createServer = router => http.createServer(router)
 
@@ -87,7 +89,6 @@ const server = compose(
 		}
 	),
 	createRouter,
-	indexRoutes
 )(routes)
 
 server.listen(PORT, function listening() {
