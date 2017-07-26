@@ -64,8 +64,28 @@ const createRouter = indexedRoutes => (req, res) => {
 
 const createServer = router => http.createServer(router)
 
+const addMiddlewares = (...middlewares) => router => (req, res) => middlewares.reduce(
+	(next, middleware) => () => middleware(req, res, next),
+	() => router(req, res)
+)()
+
 const server = compose(
 	createServer,
+	addMiddlewares(
+		function logRequestTimes(req, res, next) {
+			if (req.url === '/favicon.ico') {
+				return next()
+			}
+
+			const d1 = new Date()
+			next()
+			const d2 = new Date()
+
+			const route = `${req.method} ${req.url}`
+
+			console.log(`${route} (${d2 - d1}ms)`)
+		}
+	),
 	createRouter,
 	indexRoutes
 )(routes)
