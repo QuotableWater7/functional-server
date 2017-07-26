@@ -2,5 +2,9 @@
   "name": "server-from-scratch",
   "version": "0.0.1",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+  	"start": "nodemon src/index",
+  	"start:prod": "node src/index",
+  }
 }
