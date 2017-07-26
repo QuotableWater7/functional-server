@@ -1,7 +1,10 @@
 const http = require('http')
-const PORT = 3002
 
-const compose = (...fns) => fns.reduce((composed, fn) => (...args) => composed(fn(...args)))
+const createGetRoute = require('./lib/create-get-route')
+const createPostRoute = require('./lib/create-post-route')
+const compose = require('./lib/general/compose')
+
+const PORT = 3002
 
 async function getBlah(req, res) {
 	res.write('Serving blah')
@@ -13,17 +16,24 @@ async function getIndex(req, res) {
 	res.end()
 }
 
+async function postBlah(req, res) {
+	res.write('JSON woo')
+	res.end()
+}
+
 const routes = [
-	{
+	createGetRoute({
 		url: '/blah',
-		method: 'GET',
 		handler: getBlah,
-	},
-	{
+	}),
+	createGetRoute({
 		url: '/',
-		method: 'GET',
 		handler: getIndex,
-	},
+	}),
+	createPostRoute({
+		url: '/blah',
+		handler: postBlah,
+	})
 ]
 
 const indexRoutes = routes => routes.reduce(
