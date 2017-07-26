@@ -4,37 +4,7 @@ const createGetRoute = require('./lib/create-get-route')
 const createPostRoute = require('./lib/create-post-route')
 const compose = require('./lib/general/compose')
 
-const PORT = 3002
-
-async function getBlah(req, res) {
-	res.write('Serving blah')
-	res.end()
-}
-
-async function getIndex(req, res) {
-	res.write('Index page')
-	res.end()
-}
-
-async function postBlah(req, res) {
-	res.write('JSON woo')
-	res.end()
-}
-
-const routes = [
-	createGetRoute({
-		url: '/blah',
-		handler: getBlah,
-	}),
-	createGetRoute({
-		url: '/',
-		handler: getIndex,
-	}),
-	createPostRoute({
-		url: '/blah',
-		handler: postBlah,
-	}),
-]
+const PORT = 3000
 
 const indexRoutes = routes => routes.reduce(
 	(routerIndex, route) => Object.assign(
@@ -64,33 +34,26 @@ const createRequestHandler = indexedRoutes => (req, res) => {
 
 const createRouter = compose(createRequestHandler, indexRoutes)
 
-const createServer = router => http.createServer(router)
-
 const addMiddlewares = (...middlewares) => router => (req, res) => middlewares.reduce(
 	(next, middleware) => () => middleware(req, res, next),
 	() => router(req, res)
 )()
 
-const server = compose(
+function createServer({ port = PORT, middlewares = [], routes = [] }) {
+	const server = compose(
+		router => http.createServer(router),
+		addMiddlewares(...middlewares),
+		createRouter,
+	)(routes)
+
+	server.listen(port, function listening() {
+		console.log(`Server now listening on port ${port}`)
+	})
+}
+
+module.exports = {
+	addMiddlewares,
+	createGetRoute,
+	createPostRoute,
 	createServer,
-	addMiddlewares(
-		function logRequestTimes(req, res, next) {
-			if (req.url === '/favicon.ico') {
-				return next()
-			}
-
-			const d1 = new Date()
-			next()
-			const d2 = new Date()
-
-			const route = `${req.method} ${req.url}`
-
-			console.log(`${route} (${d2 - d1}ms)`)
-		}
-	),
-	createRouter,
-)(routes)
-
-server.listen(PORT, function listening() {
-	console.log(`Server now listening on port ${PORT}`)
-})
+}
