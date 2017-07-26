@@ -2,15 +2,21 @@ const {
 	createServer,
 	createGetRoute,
 	createPostRoute,
+	applyNamespace,
 } = require('../src')
+
+async function getIndex(req, res) {
+	res.write('Index page')
+	res.end()
+}
 
 async function getBlah(req, res) {
 	res.write('GET blah')
 	res.end()
 }
 
-async function getIndex(req, res) {
-	res.write('Index page')
+async function getBlahV2(req, res) {
+	res.write('GET blah v2')
 	res.end()
 }
 
@@ -24,14 +30,22 @@ const routes = [
 		url: '/',
 		handler: getIndex,
 	}),
-	createGetRoute({
-		url: '/blah',
-		handler: getBlah,
-	}),
-	createPostRoute({
-		url: '/blah',
-		handler: postBlah,
-	}),
+	applyNamespace('/api')(
+		createGetRoute({
+			url: '/blah',
+			handler: getBlah,
+		}),
+		createPostRoute({
+			url: '/blah',
+			handler: postBlah,
+		}),
+		applyNamespace('/v2')(
+			createGetRoute({
+				url: '/blah',
+				handler: getBlahV2,
+			}),
+		),
+	),
 ]
 
 createServer({

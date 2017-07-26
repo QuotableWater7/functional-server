@@ -6,6 +6,15 @@ const compose = require('./lib/general/compose')
 
 const PORT = 3000
 
+const flattenRoutes = ([...mixedArray]) => mixedArray.reduce(
+	(output, item) => {
+		return item instanceof Array ?
+			output.concat(...flattenRoutes(item)) :
+			output.concat([item])
+	},
+	[]
+)
+
 const indexRoutes = routes => routes.reduce(
 	(routerIndex, route) => Object.assign(
 		{},
@@ -55,10 +64,21 @@ function createServer({
 		router => http.createServer(router),
 		addMiddlewares(...middlewares),
 		createRouter,
+		flattenRoutes,
 	)(routes)
 
 	server.listen(port, function listening() {
 		console.log(`Server now listening on port ${port}`)
+	})
+}
+
+const applyNamespace = namespace => (...routes) => {
+	return routes.map(route => {
+		if (route instanceof Array) {
+			return applyNamespace(namespace)(...route)
+		}
+
+		return Object.assign({}, route, { url: `${namespace}${route.url}` })
 	})
 }
 
@@ -67,4 +87,5 @@ module.exports = {
 	createGetRoute,
 	createPostRoute,
 	createServer,
+	applyNamespace,
 }
