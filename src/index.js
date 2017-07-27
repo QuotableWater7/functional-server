@@ -15,22 +15,17 @@ const flattenRoutes = ([...mixedArray]) => mixedArray.reduce(
 	[]
 )
 
-const indexRoutes = routes => routes.reduce(
-	(routerIndex, route) => Object.assign(
-		{},
-		routerIndex,
-		{
-			[`${route.method}::${route.url}`]: route,
-		}
-	),
-	{}
-)
+const addRouteRegex = routes => routes.map(route => {
+	return Object.assign({}, route, {
+		regex: new RegExp(`^${route.url.replace(/:\w+/g, '.+')}$`)
+	})
+})
 
-const createRequestHandler = indexedRoutes => (req, res) => {
+const createRequestHandler = routes => (req, res) => {
 	const url = req.url
 	const method = req.method
 
-	const route = indexedRoutes[`${method}::${url}`]
+	const route = routes.find(r => r.regex.test(url) && r.method === method)
 
 	if (!route) {
 		res.write(`404: Cannot serve ${method} to ${url}`)
@@ -41,7 +36,7 @@ const createRequestHandler = indexedRoutes => (req, res) => {
 	route.handler(req, res)
 }
 
-const createRouter = compose(createRequestHandler, indexRoutes)
+const createRouter = compose(createRequestHandler, addRouteRegex)
 
 const addMiddlewares = (...middlewares) => router => (req, res) => {
 	// each middleware gets a reference to the "next" middleware in the chain
@@ -72,10 +67,10 @@ function createServer({
 	})
 }
 
-const applyNamespace = namespace => (...routes) => {
+const applyNamespace = namespace => routes => {
 	return routes.map(route => {
 		if (route instanceof Array) {
-			return applyNamespace(namespace)(...route)
+			return applyNamespace(namespace)(route)
 		}
 
 		return Object.assign({}, route, { url: `${namespace}${route.url}` })

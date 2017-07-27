@@ -25,27 +25,40 @@ async function postBlah(req, res) {
 	res.end()
 }
 
+async function getTest(req, res) {
+	res.write('GET test')
+	res.end()
+}
+
 const routes = [
 	createGetRoute({
 		url: '/',
 		handler: getIndex,
 	}),
-	applyNamespace('/api')(
+
+	createGetRoute({
+		url: '/test/:idOfSomeSort',
+		handler: getTest,
+	}),
+
+	applyNamespace('/api')([
 		createGetRoute({
 			url: '/blah',
 			handler: getBlah,
 		}),
+
 		createPostRoute({
 			url: '/blah',
 			handler: postBlah,
 		}),
-		applyNamespace('/v2')(
+
+		applyNamespace('/v2')([
 			createGetRoute({
 				url: '/blah',
 				handler: getBlahV2,
 			}),
-		),
-	),
+		]),
+	]),
 ]
 
 createServer({
