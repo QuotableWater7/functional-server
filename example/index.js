@@ -7,8 +7,14 @@ const {
 
 async function handler(req, res) {
 	const hasQuery = Object.keys(req.query).length > 0
+	const hasParams = Object.keys(req.params).length > 0
 
-	res.write(`${req.method} ${req.url.split('?')[0]} ${hasQuery ? JSON.stringify(req.query) : ''}`)
+	res.write([
+		`method: ${req.method}`,
+		`path: ${req.url.split('?')[0]}`,
+		hasParams ? `params: ${JSON.stringify(req.params)}` : '',
+		hasQuery ? `query: ${JSON.stringify(req.query)}` : '',
+	].join('\n'))
 	res.end()
 }
 
@@ -19,7 +25,7 @@ const routes = [
 	}),
 
 	createGetRoute({
-		url: '/test/:idOfSomeSort',
+		url: '/test/:testId',
 		handler: handler,
 	}),
 

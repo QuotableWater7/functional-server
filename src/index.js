@@ -18,7 +18,7 @@ const flattenRoutes = ([...mixedArray]) => mixedArray.reduce(
 const addRouteRegex = routes => routes.map(route => {
 	return Object.assign({}, route, {
 		regex: new RegExp(
-			`^${route.url.split('?')[0].replace(/:\w+/g, '\\w+')}(?:\\?.*)?$`
+			`^${route.url.split('?')[0].replace(/:\w+/g, '(\\w+)')}(?:\\?.*)?$`
 		)
 	})
 })
@@ -36,6 +36,30 @@ const extractQueryParams = url => {
 	}, {})
 }
 
+const extractIds = ({ url, route }) => {
+	const matches = route.regex.exec(url).slice(1)
+	const idNames = /:(\w+)/g.exec(route.url)
+
+	if (!idNames) {
+		return {}
+	}
+
+	return idNames.slice(1).reduce(
+		(output, idName) => {
+			return Object.assign({}, output, {
+				idMap: Object.assign({}, output.idMap, {
+					[idName]: matches[output.matchIndex],
+				}),
+				matchIndex: ++output.matchIndex,
+			})
+		},
+		{
+			matchIndex: 0,
+			idMap: {},
+		}
+	).idMap
+}
+
 const createRequestHandler = routes => (req, res) => {
 	const url = req.url
 	const method = req.method
@@ -49,6 +73,7 @@ const createRequestHandler = routes => (req, res) => {
 	}
 
 	req.query = extractQueryParams(url)
+	req.params = extractIds({ route, url })
 
 	route.handler(req, res)
 }
