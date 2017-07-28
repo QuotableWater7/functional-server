@@ -13,12 +13,12 @@ const validateHandler = handler => {
 	}
 }
 
-module.exports = function createRoute({ url, method, handler }) {
+module.exports = function createRoute({ path, method, handler }) {
 	validateMethod(method)
 	validateHandler(handler)
 
 	return {
-		url,
+		path,
 		method,
 		handler,
 	}

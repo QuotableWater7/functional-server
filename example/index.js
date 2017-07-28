@@ -20,29 +20,29 @@ async function handler(req, res) {
 
 const routes = [
 	createGetRoute({
-		url: '/',
+		path: '/',
 		handler: handler,
 	}),
 
 	createGetRoute({
-		url: '/tests/:testId/subItem/:subItemId',
+		path: '/tests/:testId/subItem/:subItemId',
 		handler: handler,
 	}),
 
 	applyNamespace('/api')([
 		createGetRoute({
-			url: '/blah',
+			path: '/blah',
 			handler: handler,
 		}),
 
 		createPostRoute({
-			url: '/blah',
+			path: '/blah',
 			handler: handler,
 		}),
 
 		applyNamespace('/v2')([
 			createGetRoute({
-				url: '/blah',
+				path: '/blah',
 				handler: handler,
 			}),
 		]),

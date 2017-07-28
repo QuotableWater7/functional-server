@@ -31,14 +31,14 @@ const extractIdNames = url => {
 const addRouteRegex = routes => routes.map(route => {
 	return Object.assign({}, route, {
 		regex: new RegExp(
-			`^${route.url.split('?')[0].replace(/:\w+/g, '(\\w+)')}(?:\\?.*)?$`
+			`^${route.path.split('?')[0].replace(/:\w+/g, '(\\w+)')}(?:\\?.*)?$`
 		),
-		idNames: extractIdNames(route.url),
+		idNames: extractIdNames(route.path),
 	})
 })
 
-const extractQueryParams = url => {
-	const queryString = url.split('?')[1]
+const extractQueryParams = path => {
+	const queryString = path.split('?')[1]
 
 	if (!queryString) {
 		return {}
@@ -133,7 +133,7 @@ const applyNamespace = namespace => routes => {
 			return applyNamespace(namespace)(route)
 		}
 
-		return Object.assign({}, route, { url: `${namespace}${route.url}` })
+		return Object.assign({}, route, { path: `${namespace}${route.path}` })
 	})
 }
 
