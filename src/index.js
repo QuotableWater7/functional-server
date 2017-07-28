@@ -17,9 +17,24 @@ const flattenRoutes = ([...mixedArray]) => mixedArray.reduce(
 
 const addRouteRegex = routes => routes.map(route => {
 	return Object.assign({}, route, {
-		regex: new RegExp(`^${route.url.replace(/:\w+/g, '.+')}$`)
+		regex: new RegExp(
+			`^${route.url.split('?')[0].replace(/:\w+/g, '\\w+')}(?:\\?.*)?$`
+		)
 	})
 })
+
+const extractQueryParams = url => {
+	const queryString = url.split('?')[1]
+
+	if (!queryString) {
+		return {}
+	}
+
+	return queryString.split('&').reduce((query, chunk) => {
+		const [key, value] = chunk.split('=')
+		return Object.assign({}, query, { [key]: value })
+	}, {})
+}
 
 const createRequestHandler = routes => (req, res) => {
 	const url = req.url
@@ -32,6 +47,8 @@ const createRequestHandler = routes => (req, res) => {
 		res.end()
 		return
 	}
+
+	req.query = extractQueryParams(url)
 
 	route.handler(req, res)
 }

@@ -5,57 +5,39 @@ const {
 	applyNamespace,
 } = require('../src')
 
-async function getIndex(req, res) {
-	res.write('Index page')
-	res.end()
-}
+async function handler(req, res) {
+	const hasQuery = Object.keys(req.query).length > 0
 
-async function getBlah(req, res) {
-	res.write('GET blah')
-	res.end()
-}
-
-async function getBlahV2(req, res) {
-	res.write('GET blah v2')
-	res.end()
-}
-
-async function postBlah(req, res) {
-	res.write('POST blah')
-	res.end()
-}
-
-async function getTest(req, res) {
-	res.write('GET test')
+	res.write(`${req.method} ${req.url.split('?')[0]} ${hasQuery ? JSON.stringify(req.query) : ''}`)
 	res.end()
 }
 
 const routes = [
 	createGetRoute({
 		url: '/',
-		handler: getIndex,
+		handler: handler,
 	}),
 
 	createGetRoute({
 		url: '/test/:idOfSomeSort',
-		handler: getTest,
+		handler: handler,
 	}),
 
 	applyNamespace('/api')([
 		createGetRoute({
 			url: '/blah',
-			handler: getBlah,
+			handler: handler,
 		}),
 
 		createPostRoute({
 			url: '/blah',
-			handler: postBlah,
+			handler: handler,
 		}),
 
 		applyNamespace('/v2')([
 			createGetRoute({
 				url: '/blah',
-				handler: getBlahV2,
+				handler: handler,
 			}),
 		]),
 	]),
