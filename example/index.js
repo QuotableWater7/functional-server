@@ -25,7 +25,7 @@ const routes = [
 	}),
 
 	createGetRoute({
-		url: '/test/:testId',
+		url: '/tests/:testId/subItem/:subItemId',
 		handler: handler,
 	}),
 

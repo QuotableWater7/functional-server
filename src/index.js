@@ -15,11 +15,25 @@ const flattenRoutes = ([...mixedArray]) => mixedArray.reduce(
 	[]
 )
 
+const extractIdNames = url => {
+	const re = /:(\w+)/g
+
+	let match
+	const matches = []
+
+	while (match = re.exec(url)) {
+		matches.push(match[1])
+	}
+
+	return matches
+}
+
 const addRouteRegex = routes => routes.map(route => {
 	return Object.assign({}, route, {
 		regex: new RegExp(
 			`^${route.url.split('?')[0].replace(/:\w+/g, '(\\w+)')}(?:\\?.*)?$`
-		)
+		),
+		idNames: extractIdNames(route.url),
 	})
 })
 
@@ -36,15 +50,16 @@ const extractQueryParams = url => {
 	}, {})
 }
 
-const extractIds = ({ url, route }) => {
+const extractIdsFromUrl = ({ url, route }) => {
 	const matches = route.regex.exec(url).slice(1)
-	const idNames = /:(\w+)/g.exec(route.url)
+	const idNames = route.idNames
 
-	if (!idNames) {
+	if (!idNames.length) {
 		return {}
 	}
 
-	return idNames.slice(1).reduce(
+
+	return idNames.reduce(
 		(output, idName) => {
 			return Object.assign({}, output, {
 				idMap: Object.assign({}, output.idMap, {
@@ -72,10 +87,12 @@ const createRequestHandler = routes => (req, res) => {
 		return
 	}
 
-	req.query = extractQueryParams(url)
-	req.params = extractIds({ route, url })
+	const decoratedRequest = Object.assign({}, req, {
+		query: extractQueryParams(url),
+		params: extractIdsFromUrl({ route, url }),
+	})
 
-	route.handler(req, res)
+	route.handler(decoratedRequest, res)
 }
 
 const createRouter = compose(createRequestHandler, addRouteRegex)
