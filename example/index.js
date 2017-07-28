@@ -62,7 +62,8 @@ createServer({
 			req.on('end', () => {
 				const d2 = new Date()
 				const route = `${req.method} ${req.url}`
-				console.log(`${route} (${d2 - d1}ms)`)
+
+				console.log(`${route} ${res.statusCode} (${d2 - d1}ms)`)
 			})
 
 			next()

@@ -82,6 +82,7 @@ const createRequestHandler = routes => (req, res) => {
 	const route = routes.find(r => r.regex.test(url) && r.method === method)
 
 	if (!route) {
+		res.statusCode = 404
 		res.write(`404: Cannot serve ${method} to ${url}`)
 		res.end()
 		return
