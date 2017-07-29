@@ -1,8 +1,6 @@
 const {
 	createServer,
-	createGetRoute,
-	createPostRoute,
-	applyNamespace,
+	route,
 } = require('../src')
 
 async function handler(req, res) {
@@ -19,29 +17,29 @@ async function handler(req, res) {
 }
 
 const routes = [
-	createGetRoute({
+	route.get({
 		path: '/',
 		handler: handler,
 	}),
 
-	createGetRoute({
+	route.get({
 		path: '/tests/:testId/subItem/:subItemId',
 		handler: handler,
 	}),
 
-	applyNamespace('/api')([
-		createGetRoute({
+	route.applyNamespace('/api')([
+		route.get({
 			path: '/blah',
 			handler: handler,
 		}),
 
-		createPostRoute({
+		route.post({
 			path: '/blah',
 			handler: handler,
 		}),
 
-		applyNamespace('/v2')([
-			createGetRoute({
+		route.applyNamespace('/v2')([
+			route.get({
 				path: '/blah',
 				handler: handler,
 			}),

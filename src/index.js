@@ -1,8 +1,7 @@
 const http = require('http')
 
-const createGetRoute = require('./lib/create-get-route')
-const createPostRoute = require('./lib/create-post-route')
 const compose = require('./lib/general/compose')
+const route = require('./lib/route')
 
 const PORT = 3000
 
@@ -127,20 +126,8 @@ function createServer({
 	})
 }
 
-const applyNamespace = namespace => routes => {
-	return routes.map(route => {
-		if (route instanceof Array) {
-			return applyNamespace(namespace)(route)
-		}
-
-		return Object.assign({}, route, { path: `${namespace}${route.path}` })
-	})
-}
-
 module.exports = {
 	addMiddlewares,
-	createGetRoute,
-	createPostRoute,
+	route,
 	createServer,
-	applyNamespace,
 }
