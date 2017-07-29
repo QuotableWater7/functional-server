@@ -1,10 +1,9 @@
 {
-  "name": "server-from-scratch",
+  "name": "fp-serv",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "src/index.js",
   "license": "MIT",
   "scripts": {
-  	"start": "nodemon src/index",
-  	"start:prod": "node src/index",
+  	"start:example": "nodemon example"
   }
 }
