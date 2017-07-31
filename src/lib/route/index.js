@@ -26,8 +26,7 @@ function createRoute({ path, method, handler }) {
 	}
 }
 
-const assignMethodToGET = route => Object.assign({}, route, { method: 'GET' })
-const assignMethodToPOST = route => Object.assign({}, route, { method: 'POST' })
+const assignMethodTo = method => route => Object.assign({}, route, { method })
 
 const applyNamespace = namespace => routes => {
 	return routes.map(route => {
@@ -40,7 +39,10 @@ const applyNamespace = namespace => routes => {
 }
 
 module.exports = {
-	get: compose(createRoute, assignMethodToGET),
-	post: compose(createRoute, assignMethodToPOST),
+	get: compose(createRoute, assignMethodTo('GET')),
+	post: compose(createRoute, assignMethodTo('POST')),
+	put: compose(createRoute, assignMethodTo('PUT')),
+	patch: compose(createRoute, assignMethodTo('PATCH')),
+	delete: compose(createRoute, assignMethodTo('DELETE')),
 	applyNamespace,
 }
