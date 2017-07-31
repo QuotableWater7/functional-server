@@ -1,6 +1,8 @@
 # Functional Server Example
 
 ## Installation
+
+NOTE: This package is not actually on npm yet due to some publishing issues, but will be soon.
 ```bash
 npm install --save fp-serv
 
