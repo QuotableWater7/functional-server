@@ -14,18 +14,7 @@ const flattenRoutes = ([...mixedArray]) => mixedArray.reduce(
 	[]
 )
 
-const extractIdNames = url => {
-	const re = /:(\w+)/g
-
-	let match
-	const matches = []
-
-	while (match = re.exec(url)) {
-		matches.push(match[1])
-	}
-
-	return matches
-}
+const extractIdNames = url => url.match(/:(\w+)/g) || []
 
 const addRouteRegex = routes => routes.map(route => {
 	return Object.assign({}, route, {
@@ -37,11 +26,7 @@ const addRouteRegex = routes => routes.map(route => {
 })
 
 const extractQueryParams = path => {
-	const queryString = path.split('?')[1]
-
-	if (!queryString) {
-		return {}
-	}
+	const queryString = path.split('?')[1] || ''
 
 	return queryString.split('&').reduce((query, chunk) => {
 		const [key, value] = chunk.split('=')
@@ -52,10 +37,6 @@ const extractQueryParams = path => {
 const extractIdsFromUrl = ({ url, route }) => {
 	const matches = route.regex.exec(url).slice(1)
 	const idNames = route.idNames
-
-	if (!idNames.length) {
-		return {}
-	}
 
 
 	return idNames.reduce(
