@@ -82,10 +82,10 @@ const addMiddlewares = (...middlewares) => router => (req, res) => {
 	// each middleware gets a reference to the "next" middleware in the chain
 	// with the final reference being the function that executes the request via the router.
 	// middlewares are executed from last to first, similar to lodash.flowRight
+	const bindArgsToMiddleware = (next, middleware) => () => middleware(req, res, next)
+
 	return middlewares.reduce(
-		function bindArgsToMiddleware(next, middleware) {
-			return () => middleware(req, res, next)
-		},
+		bindArgsToMiddleware,
 		() => router(req, res)
 	)()
 }
@@ -102,7 +102,7 @@ function createServer({
 		flattenRoutes,
 	)(routes)
 
-	server.listen(port, function listening() {
+	server.listen(port, () {
 		console.log(`Server now listening on port ${port}`)
 	})
 }
